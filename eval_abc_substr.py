@@ -2,7 +2,6 @@ import torch
 import math, random, copy, sys, os, csv
 from layers import *
 from utils import *
-from classifier import ClassifierEncoder, Model
 import argparse
 
 if __name__ == "__main__":
@@ -17,31 +16,37 @@ if __name__ == "__main__":
 
     # Now use args.data_directory instead of data_directory
     model_name = args.abc_model
+    print(f'model_name={model_name}', file=sys.stderr, flush=True)
 
     test = []
 
-    data_directory = ''
+    if "small" in model_name:
+        data_directory = 'formal_language_data/'
+        from abc_classifier import ClassifierEncoder, Model, ClassifierEncoderTemp, ModelTemp
+    else:
+        data_directory = 'formal_language_data_big/'
+        from abc_classifier_large import ClassifierEncoder, Model, ClassifierEncoderTemp, ModelTemp
 
     # Read the concatenated file
-    with open('formal_language_data/abc/test_negs.txt', 'r') as f:
+    with open(data_directory+'abc/test_neg.txt', 'r') as f:
         lines = f.readlines()
         # Process each line
         for line in lines:
             text = line.strip()
-            words = ['<BOS>'] + text.split() + ['<EOS>']
+            words = ['<BOS>'] + list(text) + ['<EOS>']
             test.append((0, words))
 
     # Read the concatenated file
-    with open('formal_language_data/abc/test_pos.txt', 'r') as f:
+    with open(data_directory+'abc/test_pos.txt', 'r') as f:
         lines = f.readlines()
         # Process each line
         for line in lines:
             text = line.strip()
-            words = ['<BOS>'] + text.split() + ['<EOS>']
+            words = ['<BOS>'] + list(text)  + ['<EOS>']
             test.append((1, words))
 
     # load model from models folder
-    model = torch.load('abc_models/' + model_name + '.pt')
+    model = torch.load('models/' + model_name, map_location=torch.device('cpu'))
 
     # evaluate accuracy on test
 
@@ -50,7 +55,7 @@ if __name__ == "__main__":
     test_accuracy = 0
     # shuffle the test data
     random.shuffle(test)
-    test = test[0:100]
+    test = test
     for data in progress(test):
         label, words = data
         classification = model.classify_train(words)

@@ -17,7 +17,7 @@ else:
     print("running on the CPU")
 
 max_len = 256
-layers = 2
+layers = 4
 
 class ClassifierEncoder(torch.nn.Module):
     """
