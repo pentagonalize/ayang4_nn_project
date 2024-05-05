@@ -55,7 +55,7 @@ if __name__ == "__main__":
     test_accuracy = 0
     # shuffle the test data
     random.shuffle(test)
-    test = test
+    test = test[0:1000]
     for data in progress(test):
         label, words = data
         classification = model.classify_train(words)
